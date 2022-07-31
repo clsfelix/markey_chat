@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div 
-      v-for = 'filial in establishment.filiais'
+      v-for="filial in establishment.filiais.sort((a, b) => a.nome.localeCompare(b.nome))"
       :key = 'filial.id'
       class="establishment" @click="selectEstablishment(filial)">
         <img :src='filial.userProfilePicture' alt="" srcset="" />
@@ -27,7 +27,7 @@ export default {
       }
 
 
-      this.store.dispatch('chat/setSelectedEstablishment',filial)
+      this.store.dispatch('chat/setSelectedEstablishment',{filial})
       this.isSelected = true;
     }
   },

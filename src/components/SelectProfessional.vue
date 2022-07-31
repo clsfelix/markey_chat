@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div 
-      v-for="professional in profesionals"
+      v-for="professional in profesionals.sort((a, b) => a.nome.localeCompare(b.nome))"
       :key="professional.uidProfessional"
       class="professional" @click="selectProfessional(professional)">
       <img :src="professional.userProfilePicture" alt="" srcset="" />
@@ -28,8 +28,7 @@ export default {
       if(this.isSelected){
         return;
       }
-      this.store.dispatch('chat/setSelectedProfessional', professional)
-      // this.store.commit('chat/pushQuestion','selectProfessionalMessage')
+      this.store.dispatch('chat/setSelectedProfessional', {professional});
       this.isSelected = true;
     }
   }

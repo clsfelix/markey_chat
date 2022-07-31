@@ -5,6 +5,8 @@ import SelectService from './SelectServices.vue';
 import SelectDate from './SelectDate.vue';
 import SelectHour from './SelectHour.vue';
 import AnswerInput from './AnswerInput.vue';
+import AnswerInputPhone from './AnswerInputPhone.vue';
+import OhtersOptions from './OthersOptions.vue';
 export default {
   props: {
     data:"",
@@ -13,16 +15,15 @@ export default {
   data() {
     return {};
   },
-  created() {
-    console.log(this.type);
-  },
   components: {
     "Select-Establishment": SelectEstablishment,
     "select-professional" : SelectProfessional,
     "select-service" : SelectService,
     "select-date" : SelectDate,
     "select-hour" : SelectHour,
-    "answer-input" : AnswerInput
+    "answer-input" : AnswerInput,
+    "answer-input-phone" : AnswerInputPhone,
+    'others-options' : OhtersOptions
   },
 };
 </script>
@@ -58,8 +59,47 @@ export default {
 
 
  <div class="awnser-input" v-else-if="type === 'awnserInput' ">
-    <answer-input />
+    <answer-input :parameters="data" />
   </div>
+
+   <div class="awnser-input" v-else-if="type === 'answerInputPhone' ">
+    <answer-input-phone />
+  </div>
+
+  <div class="awnser-input" v-else-if="type === 'selectOtherOption' ">
+    <others-options :options="data" />
+  </div>
+
+  <div class="message" v-else-if="type === 'sucessSchedule'">
+    <p class="text">
+      ✅ Agendamento realizado com sucesso!
+    </p>
+    <p class="text">
+      Dados do Agendamento:
+    </p>
+    <p class="text">
+      Data: {{data.dataReserva}} 
+    </p>
+    <p class="text">
+      Horário: {{data.horarioAgendamento}}
+    </p>
+    <p class="text">
+      Em nome de: {{data.nomeCliente}}
+    </p>
+    <p class="text">
+      Profissional: {{data.professionalNome}}
+    </p>
+    <p class="text">
+      Serviço: {{data.serviceTitulo}}
+    </p>
+    <p class="text">
+      Valor: {{data.valor}}
+    </p>
+    <p class="text">
+      Endereço: {{data.enderecoCompleto}}
+    </p>
+  </div>
+
 
 
   

@@ -1,5 +1,5 @@
 import {questions, establishmentQuestion, professionalsQuestion, servicesQuestion } from '../../config/messages.js';
-import { getAvaliabledSchedules } from '../../api/api'
+import { getAvaliabledSchedules, createSchedule } from '../../api/api'
 const state = ()=>{
     return {
         renderingChat:[],
@@ -67,7 +67,8 @@ const mutations = {
     },
 
     clear: (state) => {
-        state.renderingChat = [];
+        console.log('aqui 2')
+        state.renderingChat.splice(0,(state.renderingChat.length));
     }
 }
 
@@ -75,7 +76,7 @@ const actions = {
 
     initChat: {
         root: true,
-        handler: ({commit, state, getters}) => {
+        handler: ({commit, state, getters, dispatch}) => {
 
             const establishment = getters['getEstablishment'];
 
@@ -94,8 +95,10 @@ const actions = {
                     case 2: {
                         if(establishment.hasOwnProperty('filiais')) {
                             commit('pushEstablishmentSelectQuestion');
-                            clearInterval(queue)
+                            clearInterval(queue);
                             break;
+                        } else {
+                            dispatch('setSelectedEstablishment', {filial:establishment,hiddenMessage:true});
                         }
                     }
 
@@ -111,31 +114,37 @@ const actions = {
     },
 
 
-    setSelectedEstablishment: ({commit, state, dispatch}, filial) => {
+    setSelectedEstablishment: ({commit, state, dispatch}, {filial, hiddenMessage=false}) => {
+
         let i = 0
 
+        dispatch('setSelectedOption', {key:'establishment', value:filial }, {root:true});
 
-        dispatch('setSelectedOption', {key:'establishment', value:filial }, {root:true})
 
+        const queue = setInterval(()=>{
+            switch(i){ 
+                case 0: {
+                    if(!hiddenMessage) {
+                        commit('pushAnswer', filial.nome)
+                    }
+                    break;
+                }
+                case 1: {
+                    commit('pushProfessionalsSelectQuestion', filial);
+                    break;
+                }
 
-        let fireChat = setInterval(()=>{
-            if(i == 0){
-                commit('pushAnswer', filial.nome)
-                i++;
-            }
-            else if(i == 1) {
-                commit('pushProfessionalsSelectQuestion', filial)
-                i++;
-            }
-            else {
-                clearInterval(fireChat);
-            }
-        },300)
+                default: {
+                    clearInterval(queue);
+                    break;
+                }
+            };
+            i++;
+        },300);
     },
 
 
-    setSelectedProfessional: ({commit, state, getters, dispatch}, professional) => {
-
+    setSelectedProfessional: ({commit, state, getters, dispatch}, {professional, hiddenMessage=false}) => {
         dispatch('setSelectedOption', {key:'professional', value:professional }, {root:true})
         const { establishment } = getters['getSelectedOptions'];
 
@@ -143,7 +152,9 @@ const actions = {
         const queue = setInterval(()=>{
             switch(i) {
                 case 0: {
-                    commit('pushAnswer', professional.nome);
+                    if(!hiddenMessage){
+                        commit('pushAnswer', professional.nome);
+                    }
                     break;
                 }
                 case 1: {
@@ -167,7 +178,7 @@ const actions = {
     },
 
 
-    setSelectedService : ({ commit, state, getters, dispatch }, service) => {
+    setSelectedService : ({ commit, state, getters, dispatch }, {service, hiddenMessage=false}) => {
 
         dispatch('setSelectedOption', {key:'service', value:service }, {root:true})
 
@@ -176,8 +187,11 @@ const actions = {
         let queue = setInterval(()=>{
             switch(i){
                 case 0: {
-                    commit('pushAnswer', `${service.titulo} - ${Number(service.valor).toLocaleString('pt-BR',{style:'currency', currency:'BRL'})}`);
+                    if(!hiddenMessage) {
+                        commit('pushAnswer', `${service.titulo} - ${Number(service.valor).toLocaleString('pt-BR',{style:'currency', currency:'BRL'})}`);
+                    }
                     break;
+
                 }
                 case 1: {
                     commit('pushQuestion',{question:"selectDate"});
@@ -204,42 +218,54 @@ const actions = {
     },
 
     setSelectedDate : async ({commit, state, getters, dispatch}, date) => {
-
         dispatch('setSelectedOption', {key:'date', value:date }, {root:true});
-        const { professional, service } = getters['getSelectedOptions'];
-        
-        let i = 0;
-        let queue = setInterval(()=>{
-            switch(i){
 
-                case 0 :{
-                    commit('pushAnswer',date.completeDate.toLocaleDateString('pt-br') )
-                    break;
-                }
+        const { professional, service, establishment } = getters['getSelectedOptions'];
 
-                case 1: {
-                    commit('pushQuestion',{question:"selectHour"});
-                    break;
-                }
-                case 2: {
-                    (async() => {
-                        const availableSchedules = await getAvaliabledSchedules(professional.uidProfessional, service.id, date.completeDate.toLocaleDateString('pt-br'));
+        const availableSchedules = await getAvaliabledSchedules(professional.uidProfessional, service.id, date.completeDate.toLocaleDateString('pt-br'));
+
+        if(availableSchedules.length > 0) {
+
+            let i = 0;
+            let queue = setInterval(()=>{
+                switch(i){
+
+                    case 0 :{
+                        commit('pushAnswer',date.completeDate.toLocaleDateString('pt-br') )
+                        break;
+                    }
+
+                    case 1: {
+                        commit('pushQuestion',{question:"selectHour"});
+                        break;
+                    }
+                    case 2: {
+
                         let message = {
-                            type:"selectHour",
-                            data: availableSchedules
-                        }
+                                type:"selectHour",
+                                data: availableSchedules
+                            }
                         commit('pushMessageToRender', {message});
-                    })()
-                    break;
-                }
+                        break;
+                    }
 
-                default: {
-                    clearInterval(queue);
-                    break;
+                    default: {
+                        clearInterval(queue);
+                        break;
+                    }
                 }
-            }
-            i++;
-        },300)
+                i++;
+            },300);
+        } else {
+            let options = establishment.professionals.length > 1 ?
+            ['service', 'date', 'professional'] :
+            ['service','date'];
+
+            dispatch('returnToSelectOtherOption', {
+                options,
+                question:"dontHaveHour"
+            })
+        }
 
 
 
@@ -261,7 +287,11 @@ const actions = {
                     break;
                 }
                 case 2: {
-                    commit('pushInputAnswer', {});
+                    commit('pushInputAnswer', {
+                        mask:"",
+                        key: 'clientName',
+                        dispatch: 'pushPhoneQuestion'
+                    });
                     break;
                 }
 
@@ -274,8 +304,10 @@ const actions = {
 
     },
 
-    submitInput : ({commit, getter, dispatch}, payload) => {
-        const { key, value } = payload;
+    submitInput : ({commit, getters, dispatch}, payload) => {
+        const { key } = payload;
+        let value = payload.hasOwnProperty('rawValue') ?
+        payload.rawValue : payload.value;
         dispatch('setSelectedOption', {key, value }, {root:true});
 
         commit('removeLastMessage');
@@ -284,7 +316,11 @@ const actions = {
         const queue = setInterval(()=>{
             switch(i) {
                 case 0: {
-                    commit('pushAnswer', value);
+                    commit('pushAnswer', payload.value);
+                    break;
+                }
+                case 1: {                    
+                    dispatch(payload.dispatch);
                     break;
                 }
 
@@ -300,6 +336,129 @@ const actions = {
 
 
 
+    },
+
+    pushPhoneQuestion : ({commit, getters, dispatch}) => {
+
+        let i = 0;
+        const queue = setInterval(()=> {
+            switch(i){
+                case 0: {
+                    commit('pushQuestion', {question:'yourPhone'});
+                    break;
+                }
+
+                case 1: {
+                    commit('pushMessageToRender', {message: {
+                        type:'answerInputPhone',
+                        data:{}
+                    } })
+                }
+
+                default: {
+                    clearInterval(queue);
+                    break;
+                }
+            }
+            i++;
+        },300)
+    },
+
+
+    createAppointment: ({commit, getters, dispatch}) => {
+        const {
+                clientName,
+                clientPhone,
+                date,
+                establishment,
+                hour,
+                professional,
+                service 
+            } = getters['getSelectedOptions'];
+        const appointment = {
+            dataReserva: date.completeDate.toLocaleDateString('pt-br'),
+            horarioAgendamento: hour.horarioAgendamento,
+            idEstabelecimento: establishment.uidEstabelecimento,
+            idFuncionario: professional.uidProfessional,
+            idServico: Number(service.id),
+            nomeCliente: clientName,
+            slotReserva: Number(hour.slotReserva),
+            status: 10,
+            tempo: Number(hour.tempo),
+            idCliente:clientPhone,
+            recorrencia:false
+          };
+
+
+          createSchedule(appointment)
+          .then((response)=>{
+            console.log({'certo': response})
+            const message = {
+                type:'sucessSchedule',
+                data: {
+                    dataReserva:appointment.dataReserva,
+                    horarioAgendamento: appointment.horarioAgendamento,
+                    nomeCliente: appointment.nomeCliente,
+                    professionalNome: professional.nome,
+                    serviceTitulo: service.titulo,
+                    valor: Number(service.valor).toLocaleString('pt-BR',{style:'currency', currency:'BRL'}),
+                    enderecoCompleto: establishment.enderecoCompleto
+                }
+            }
+            commit('pushMessageToRender',{message});
+          })
+          .catch((err)=>console.error(err))
+    },
+
+    returnToSelectOtherOption : ({commit, getters, dispatch}, {options, question}) => {
+        let i = 0;
+        const queue = setInterval(()=>{
+            switch(i) {
+                case 0:{
+                    commit('pushQuestion', {question});
+                    break
+                }
+
+                case 1: {
+                    let message = {
+                        type: "selectOtherOption",
+                        data:options
+                    }
+                    commit('pushMessageToRender', {message})
+                    break;
+                }
+
+                default: {
+                    clearInterval(queue);
+                    break;
+                }
+            }
+            i++;
+        }, 300)
+    },
+
+    setOtherOption: ({commit, getters,dispatch}, opt) => {
+        
+        const { establishment, professional, service } = getters['getSelectedOptions'];
+        switch(opt){
+            case 'professional': {
+                dispatch('setSelectedEstablishment', {filial:establishment, hiddenMessage:true});
+                break;
+            }
+            case 'service' : {
+                dispatch('setSelectedProfessional', {professional, hiddenMessage:true} );
+                break;
+            }
+            case 'date' : {
+                dispatch('setSelectedService',{service, hiddenMessage:true} );
+                break;
+            }
+        }
+    },
+
+    restart: ({commit, getters, dispatch}) => {
+        commit('clear');
+        dispatch('clearOptions',{}, {root:true});
     }
 }
 

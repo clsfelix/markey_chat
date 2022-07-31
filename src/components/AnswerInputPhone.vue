@@ -2,14 +2,20 @@
 
 <div class="container">
     <div class="inputContainer">
+        <span class="code">+55</span>
         <input 
         v-model="value" 
         @keydown="handleEnter" 
-        type="text"
-        v-maska="parameters.mask ?? ''"
+        type="tel"
+        v-maska="'## # ####-####'"
+        placeholder="## # ####-####"
+        @maska="rawValue = $event.target.dataset.maskRawValue"
         >
         <button  class="sendButton" @click="submit()">Enviar</button>
     </div>
+</div>
+<div class="buttonContainer">
+    <button @click="dontSend()">Não informar</button>
 </div>
   
 </template>
@@ -17,25 +23,31 @@
 <script>
 import { useStore } from 'vuex'
 export default {
-    props:{
-        parameters:{
-            mask:'',
-            key:'',
-            dispatch:''
-        }
-    },
     data(){
         return{
             value: "",
-            store:useStore()
+            store:useStore(),
+            rawValue:""
         }
     },
     methods:{
         submit(){
+
             this.store.dispatch('chat/submitInput', {
-                key: this.parameters.key,
-                value: this.value, 
-                dispatch:this.parameters.dispatch
+                key: 'clientPhone',
+                value: this.value,
+                rawValue:`55${this.rawValue}`,
+                dispatch:'createAppointment'
+            })
+        },
+
+        dontSend() {
+
+                this.store.dispatch('chat/submitInput', {
+                key: 'clientPhone',
+                value: "Não informar",
+                rawValue:"",
+                dispatch:'createAppointment'
             })
         },
 
@@ -49,6 +61,18 @@ export default {
 </script>
 
 <style scoped>
+
+    .code {
+        display: flex;
+        align-items: flex-end;
+        border-bottom: 1px solid #FAC80B;
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 400;
+        font-size: 14px;
+        padding-bottom: 4px;
+
+    }
     .container {
     padding: 0;
     margin: 8px 0px;
@@ -56,6 +80,24 @@ export default {
     flex-direction: row;
     overflow-x: auto;   
     padding:0 0 12px 0;
+    }
+
+    .buttonContainer {
+        float: right;
+    }
+
+    .buttonContainer > button {
+        width: 125px;
+        height: 28px;
+        background: #FFE01B;
+        border-radius: 10px;
+        outline: none;
+        border: none;
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 400;
+        font-size: 10px;
+        line-height: 12px;
     }
 
     .inputContainer {
@@ -67,11 +109,13 @@ export default {
         outline: none;
         border: none;
         border-bottom: 1px solid #FAC80B;
-        width: 100%;
+        width: 120px;
         font-family: 'Inter';
         font-style: normal;
         font-weight: 400;
         font-size: 14px;
+        text-align: right;
+        margin-right: 8px;
     }
 
     .sendButton {

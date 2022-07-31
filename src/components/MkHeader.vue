@@ -8,11 +8,17 @@ import { useStore } from 'vuex'
     },
     computed: {
         establishment(){
-          return this.store.getters['infos/getEstablishment'];
-        
+          return this.store.getters['infos/getEstablishment'];        
       }
     },
-    created(){
+    methods:{
+      restartChat() {
+        this.store.dispatch('chat/restart');
+      },
+      loadedPicture() {
+        console.log('here')
+        this.store.dispatch('infos/finallyLoadedEstablishment');
+      }
     }
     
     
@@ -21,8 +27,11 @@ import { useStore } from 'vuex'
 
 <template>
   <div class="content">
-
-    <img :src='establishment.userProfilePicture' alt="" srcset="" />
+    <div class="return" @click="restartChat()">
+      <img src="../assets/Vectorreturn.svg">
+      <span>Reiniciar</span>
+    </div>
+    <img :src='establishment.userProfilePicture' alt="" srcset="" @load="loadedPicture()" />
     <label>{{establishment.nomeEstabelecimento}}</label>
   </div>
 </template>
@@ -43,7 +52,6 @@ import { useStore } from 'vuex'
   height: 73px;
   border-radius: 50%;
 
-
 }
 
 .content > label {
@@ -54,7 +62,26 @@ import { useStore } from 'vuex'
   line-height: 27px;
   text-align: center;
   margin-top: 14px; 
-  padding: 0px 1rem;
-  
+  padding: 0px 1rem;  
+}
+
+.return {
+  position: absolute;
+  top: 16px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+.return img {
+  width: 16px;
+}
+
+.return span {
+  font-family: 'Inter' sans-serif;
+  font-weight: 400;
+  font-size: 16px;
 }
 </style>

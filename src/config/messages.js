@@ -17,9 +17,17 @@ export const questions = (question, complement="") => {
             type: 'question',
             data: '🕛 Escolha um horário'
         },
+        dontHaveHour:{
+            type: 'question',
+            data: '🕛 Esse profissional não possui mais horários disponíveis para esse serviço'
+        },
         yourName: {
             type: 'question',
             data: 'Estamos quase finalizando, por favor, informe seu nome'
+        },
+        yourPhone: {
+            type: 'question',
+            data: '📅  Queremos te enviar um lembrete desse agendamento. Mas para isso precisamos do seu número de telefone'
         }
     }
     return options[question];

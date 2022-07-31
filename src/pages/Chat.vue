@@ -3,8 +3,8 @@
   import MkHeader from '../components/MkHeader.vue';
   import Message from '../components/Message.vue';
   import SelectEstablishment from '../components/SelectEstablishments.vue';
-  import { v4 as uuidV4 } from 'uuid'
   import {questions} from '../config/messages'
+  import SplashScreen from '../components/SplashScreen.vue';
   export default {
 
     data() {
@@ -26,16 +26,18 @@
     components:{
         MkHeader,
         Message,
-        SelectEstablishment
+        SelectEstablishment,
+        'splash-screen':SplashScreen
     }
   }
 </script>
 
 <template>
   <main class="body">
+    <splash-screen />
     <MkHeader />
     <div class="chatBody">
-      <div>
+      <div class="growing">
           <Message 
             v-for="(question, index) in chatMessages" 
             :key=index 
@@ -52,6 +54,10 @@
     width: 100vw;
     height: 100vh;
     margin: 0;
+  }
+
+  .growing {
+    transition: all 0.5s;
   }
 
   .chatBody {

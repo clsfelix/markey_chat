@@ -29,7 +29,7 @@ export default {
       if(this.isSelected){
         return;
       }
-      this.store.dispatch('chat/setSelectedService', service)
+      this.store.dispatch('chat/setSelectedService', {service})
       this.isSelected = true;
     }
   }

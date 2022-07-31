@@ -2,7 +2,7 @@ import { getEstablishmentService } from '../../api/api'
 
 const state = () => {
     return {
-        loadEstablishment:false,
+        loadedEstablishment:false,
         establishment:{
             nomeEstabelecimento:'',
             userProfilePicture: ''
@@ -19,7 +19,10 @@ const getters = {
 
     getOptionsSelected: (state, getters) => {
         return state.optionsSelected;
-    } 
+    },
+    getLoadedEstablishment: (state, getters) => {
+        return state.loadedEstablishment;
+    }
 }
 
 
@@ -34,7 +37,14 @@ const mutations = {
 
     setSelectedOption: (state, {key, value}) => {
         state.optionsSelected[key] = value
-        console.log({options: state.optionsSelected})
+    },
+
+    finallyLoadedEstablishment:(state) => {
+        state.loadedEstablishment = true;
+    },
+
+    clearOptions: (state) => {
+        state.optionsSelected = {};
     }
 }
 
@@ -43,12 +53,29 @@ const actions = {
         try{
             const response = await getEstablishmentService(hash);
             commit('updateEstablishmentState', response);
-            dispatch('initChat', {}, {root:true});
+            
 
 
         }
         catch(e) {
             console.error(e);
+        }
+    },
+
+
+    finallyLoadedEstablishment: ({commit, state, dispatch}) => {
+        commit('finallyLoadedEstablishment');
+        setTimeout(()=>{
+            dispatch('initChat', {}, {root:true})}
+        ,100)
+    },
+
+    clearOptions: {
+        root: true,
+        handler:({commit, state, dispatch})=>{
+            console.log(3)
+            commit('clearOptions');
+            dispatch('initChat', {}, {root:true});
         }
     },
 
