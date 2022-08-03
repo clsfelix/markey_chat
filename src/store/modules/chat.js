@@ -130,7 +130,13 @@ const actions = {
                     break;
                 }
                 case 1: {
-                    commit('pushProfessionalsSelectQuestion', filial);
+                    if(filial.professionals.length > 1){
+                        commit('pushProfessionalsSelectQuestion', filial);
+                    }
+                    else{
+                        console.log(filial.professionals);
+                        dispatch('setSelectedProfessional', filial.professionals[0])
+                    }
                     break;
                 }
 
@@ -217,7 +223,7 @@ const actions = {
 
     },
 
-    setSelectedDate : async ({commit, state, getters, dispatch}, date) => {
+    setSelectedDate : async ({commit, state, getters, dispatch}, {date, hiddenMessage=false}) => {
         dispatch('setSelectedOption', {key:'date', value:date }, {root:true});
 
         const { professional, service, establishment } = getters['getSelectedOptions'];
@@ -231,7 +237,9 @@ const actions = {
                 switch(i){
 
                     case 0 :{
+                        if(!hiddenMessage){
                         commit('pushAnswer',date.completeDate.toLocaleDateString('pt-br') )
+                        }
                         break;
                     }
 
@@ -271,9 +279,9 @@ const actions = {
 
     },
 
-    setSelectedHour : ({commit, getter, dispatch}, hour) => {
+    setSelectedHour : ({commit, getters, dispatch}, hour) => {
         dispatch('setSelectedOption', {key:'hour', value:hour }, {root:true});
-
+        const infos = getters['getSelectedOptions'];
         let i = 0;
         const queue = setInterval(()=> {
             switch(i) {
@@ -287,11 +295,16 @@ const actions = {
                     break;
                 }
                 case 2: {
-                    commit('pushInputAnswer', {
-                        mask:"",
-                        key: 'clientName',
-                        dispatch: 'pushPhoneQuestion'
-                    });
+                    if(infos.hasOwnProperty('clientName') && infos.clientName !== "") {
+                        dispatch('createAppointment');
+                    }
+                    else {
+                        commit('pushInputAnswer', {
+                            mask:"",
+                            key: 'clientName',
+                            dispatch: 'pushPhoneQuestion'
+                        });
+                    }
                     break;
                 }
 
@@ -389,25 +402,37 @@ const actions = {
             recorrencia:false
           };
 
-
+          let response={};
           createSchedule(appointment)
-          .then((response)=>{
-            console.log({'certo': response})
-            const message = {
-                type:'sucessSchedule',
-                data: {
-                    dataReserva:appointment.dataReserva,
-                    horarioAgendamento: appointment.horarioAgendamento,
-                    nomeCliente: appointment.nomeCliente,
-                    professionalNome: professional.nome,
-                    serviceTitulo: service.titulo,
-                    valor: Number(service.valor).toLocaleString('pt-BR',{style:'currency', currency:'BRL'}),
-                    enderecoCompleto: establishment.enderecoCompleto
-                }
-            }
-            commit('pushMessageToRender',{message});
+          .then((data)=>{
+            response = data;
+
           })
           .catch((err)=>console.error(err))
+          .finally(()=>{
+
+            if(response.status == 200) {
+                const message = {
+                    type:'sucessSchedule',
+                    data: {
+                        dataReserva:appointment.dataReserva,
+                        horarioAgendamento: appointment.horarioAgendamento,
+                        nomeCliente: appointment.nomeCliente,
+                        professionalNome: professional.nome,
+                        serviceTitulo: service.titulo,
+                        valor: Number(service.valor).toLocaleString('pt-BR',{style:'currency', currency:'BRL'}),
+                        enderecoCompleto: establishment.enderecoCompleto
+                    }
+                }
+                commit('pushMessageToRender',{message});
+            } else if(response.status == 422) {
+                dispatch('returnToSelectOtherOption', {
+                    options:['hour','professional','service'],
+                    question:"indisponibleHour"
+                })
+            }
+
+          })
     },
 
     returnToSelectOtherOption : ({commit, getters, dispatch}, {options, question}) => {
@@ -439,7 +464,7 @@ const actions = {
 
     setOtherOption: ({commit, getters,dispatch}, opt) => {
         
-        const { establishment, professional, service } = getters['getSelectedOptions'];
+        const { establishment, professional, service, date } = getters['getSelectedOptions'];
         switch(opt){
             case 'professional': {
                 dispatch('setSelectedEstablishment', {filial:establishment, hiddenMessage:true});
@@ -452,6 +477,9 @@ const actions = {
             case 'date' : {
                 dispatch('setSelectedService',{service, hiddenMessage:true} );
                 break;
+            }
+            case 'hour' : {
+                dispatch('setSelectedDate', {date, hiddenMessage:true})
             }
         }
     },

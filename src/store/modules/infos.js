@@ -53,9 +53,6 @@ const actions = {
         try{
             const response = await getEstablishmentService(hash);
             commit('updateEstablishmentState', response);
-            
-
-
         }
         catch(e) {
             console.error(e);
