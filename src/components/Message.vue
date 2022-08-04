@@ -7,13 +7,21 @@ import SelectHour from './SelectHour.vue';
 import AnswerInput from './AnswerInput.vue';
 import AnswerInputPhone from './AnswerInputPhone.vue';
 import OhtersOptions from './OthersOptions.vue';
+import { useStore } from 'vuex';
 export default {
   props: {
     data:"",
     type: "",
   },
+  methods:{
+    restart() {
+        this.store.dispatch('chat/restart');
+    }
+  },
   data() {
-    return {};
+    return {
+      store:useStore()
+    };
   },
   components: {
     "Select-Establishment": SelectEstablishment,
@@ -101,6 +109,11 @@ export default {
   </div>
 
 
+  <div class="finally-button"  @click="restart()" v-else-if="type === 'sucessButton'">
+    <button>Realizar novo agendamento</button>
+  </div>
+
+
 
   
 </template>
@@ -134,6 +147,33 @@ export default {
   width: fit-content;
   max-width: calc(100vw - 32px);
   animation: slinde-in-left 0.5s;
+}
+
+.finally-button {
+  border-radius: 10px;
+  padding: 12px 0px;
+  width: fit-content;
+  width: 100vw;
+  animation: slinde-in-left 0.5s;
+  display: flex;
+  align-items: center;
+  -webkit-align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+}
+
+.finally-button button {
+  width: 250px;
+  height: 40px;
+  background: #FFE01B;
+  border-radius: 10px;
+  outline: none;
+  border: none;
+  margin-right: 4px;
+  font-family: 'Inter' sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
 }
 
 .awnser {

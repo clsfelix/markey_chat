@@ -3,7 +3,7 @@ import _getAvaliabledSchedules from './getAvaliabledSchedules';
 import _createSchedule from "./createSchedule";
 
 
-const url = 'http://192.168.0.15:5001/marcaai-a6efb/southamerica-east1/newchatbot/';
+const url = 'https://southamerica-east1-marcaai-a6efb.cloudfunctions.net/newchatbot/';
 
 const getEstablishmentService = (hash) => _getEstablishmentService(url, hash);
 

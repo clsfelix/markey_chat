@@ -2,7 +2,7 @@
   <div class="container">
     <div class="hours">
       <select class="hourSelect" @change="selectHour" :disabled=isSelected>
-        <option selected style="display:none" >Horário</option>
+        <option selected style="display:none;" >Horário</option>
         <option v-for="hour in hours" :key="hour.slotReserva" :value="JSON.stringify(hour)">
           {{ hour.horarioAgendamento }}
         </option>
@@ -33,6 +33,9 @@ export default {
       this.isSelected = true;
     },
   },
+  created(){
+    console.log(window.navigator)
+  }
 };
 </script>
 
@@ -49,7 +52,7 @@ export default {
 
 .hourSelect {
   outline: none;
-  width: 141px;
+  width: 142px;
   height: 48px;
   border: 1px solid #fac80b;
   border-radius: 5px;
@@ -61,7 +64,10 @@ export default {
   line-height: 12px;
   color: #FAC80B;
   text-align: center;
+  text-align: -webkit-center;
+  text-align: -moz-center;
   background: none;
+  padding: 0 25%;
 }
 
 .hourSelect > option{

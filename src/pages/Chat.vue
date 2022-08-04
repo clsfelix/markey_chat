@@ -20,8 +20,7 @@
     created(){
         this.store.commit('chat/clear');
         this.chatMessages = this.store.getters['chat/getChat'];
-        this.store.dispatch('infos/getEstablishment', '6gmp2rvs20');
-
+        this.store.dispatch('infos/getEstablishment');
     },
     components:{
         MkHeader,
@@ -37,7 +36,7 @@
     <splash-screen />
     <MkHeader />
     <div class="chatBody">
-      <div class="growing">
+      <div class="growing" ref="grow">
           <Message 
             v-for="(question, index) in chatMessages" 
             :key=index 
@@ -63,11 +62,18 @@
   .chatBody {
     width: 100vw;
     padding: 1.5rem 1rem;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
     display: flex;
     flex-direction: column-reverse;
+    -webkit-flex-direction: column-reverse;
     max-height: calc(100vh - 210px);
     overflow-y: auto;
     overflow-x: hidden;
+    flex: 1 0 auto;
+    scroll-behavior:auto;
+
   }
   
 </style>

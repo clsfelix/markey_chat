@@ -22,8 +22,9 @@
         type="tel"
         v-maska="'##/##/####'"
         placeholder="00/00/0000"
+        :class="{'error':error}"
       />
-      <button class="sendButton" @click="submit()">Enviar</button>
+      <button class="sendButton" :class="{'error':error}" @click="submit()">Enviar</button>
     </div>
   </div>
 </template>
@@ -42,6 +43,7 @@ export default {
       isSelected: false,
       dates: [],
       value: "",
+      error:false
     };
   },
   created() {
@@ -80,6 +82,9 @@ export default {
 
     submit() {
       if (this.value.length < 10) {
+        this.error = true;
+        setTimeout(()=>this.error = false, 550)
+        this.value = '';
         return;
       }
 
@@ -198,6 +203,7 @@ export default {
   width: calc(100vw - 32px);
   display: flex;
   justify-content: end;
+  -webkit-justify-content: flex-end;
 }
 .inputContainer > input {
   outline: none;
@@ -222,6 +228,56 @@ export default {
   font-style: normal;
   font-weight: 400;
   font-size: 12px;
+}
+
+.error {
+  animation: vibrate 0.5s;
+}
+
+@keyframes vibrate {
+  0% {
+    transform: translateX(-5%);
+    border-color: red;
+  }
+
+  10% {
+    transform: translateX(5%);
+  }
+
+  20% {
+    transform: translateX(-5%);    
+  }
+
+  30% {
+    transform: translateX(5%);
+  }
+
+  40% {
+    transform: translateX(-5%);
+  }
+
+  50% {
+    transform: translateX(5%);    
+  }
+  60% {
+    transform: translateX(-5%);
+  }
+
+  70% {
+    transform: translateX(5%);
+  }
+
+  80% {
+    transform: translateX(-5%);    
+  }
+
+  90% {
+    transform: translateX(5%);
+  }
+
+  100% {
+    transform: translateX(0%);
+  }
 }
 
 </style>

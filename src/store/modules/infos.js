@@ -49,10 +49,13 @@ const mutations = {
 }
 
 const actions = {
-    getEstablishment : async ({ commit, state, dispatch },hash)=>{
+    getEstablishment : async ({ commit, state, dispatch }, iniChat=false)=>{
         try{
-            const response = await getEstablishmentService(hash);
+            const response = await getEstablishmentService('');
             commit('updateEstablishmentState', response);
+            if(iniChat) {
+                dispatch('initChat', {}, {root:true});
+            }
         }
         catch(e) {
             console.error(e);
@@ -70,9 +73,9 @@ const actions = {
     clearOptions: {
         root: true,
         handler:({commit, state, dispatch})=>{
-            console.log(3)
             commit('clearOptions');
-            dispatch('initChat', {}, {root:true});
+            dispatch('getEstablishment', true);
+            
         }
     },
 

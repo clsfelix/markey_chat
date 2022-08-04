@@ -2,7 +2,7 @@
 
 <div class="container">
     <div class="inputContainer">
-        <span class="code">+55</span>
+        <span class="code" :class="{'error':error}">+55</span>
         <input 
         v-model="value" 
         @keydown="handleEnter" 
@@ -10,8 +10,9 @@
         v-maska="'## # ####-####'"
         placeholder="## # ####-####"
         @maska="rawValue = $event.target.dataset.maskRawValue"
+        :class="{'error':error}"
         >
-        <button  class="sendButton" @click="submit()">Enviar</button>
+        <button :class="{'error':error}" class="sendButton" @click="submit()">Enviar</button>
     </div>
 </div>
 <div class="buttonContainer">
@@ -32,6 +33,12 @@ export default {
     },
     methods:{
         submit(){
+            if (this.rawValue.length !== 11) {
+            this.error = true;
+            setTimeout(()=>this.error = false, 550)
+            this.value = '';
+            return;
+        }
 
             this.store.dispatch('chat/submitInput', {
                 key: 'clientPhone',
@@ -65,6 +72,7 @@ export default {
     .code {
         display: flex;
         align-items: flex-end;
+        -webkit-align-items: flex-end;
         border-bottom: 1px solid #FAC80B;
         font-family: 'Inter';
         font-style: normal;
@@ -104,6 +112,8 @@ export default {
         width: calc(100vw - 32px);
         display: flex;
         justify-content: end;
+        -webkit-justify-content: flex-end;
+
     }
     .inputContainer > input {
         outline: none;
@@ -131,4 +141,55 @@ export default {
         font-weight: 400;
         font-size: 12px;
     }
+
+
+    .error {
+        animation: vibrate 0.5s;
+    }         
+
+    @keyframes vibrate {
+    0% {
+        transform: translateX(-5%);
+        border-color: red;
+    }
+
+    10% {
+        transform: translateX(5%);
+    }
+
+    20% {
+        transform: translateX(-5%);    
+    }
+
+    30% {
+        transform: translateX(5%);
+    }
+
+    40% {
+        transform: translateX(-5%);
+    }
+
+    50% {
+        transform: translateX(5%);    
+    }
+    60% {
+        transform: translateX(-5%);
+    }
+
+    70% {
+        transform: translateX(5%);
+    }
+
+    80% {
+        transform: translateX(-5%);    
+    }
+
+    90% {
+        transform: translateX(5%);
+    }
+
+    100% {
+        transform: translateX(0%);
+    }
+}
 </style>

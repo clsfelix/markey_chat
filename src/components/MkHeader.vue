@@ -16,7 +16,6 @@ import { useStore } from 'vuex'
         this.store.dispatch('chat/restart');
       },
       loadedPicture() {
-        console.log('here')
         this.store.dispatch('infos/finallyLoadedEstablishment');
       }
     }

@@ -23,7 +23,7 @@ const getters = {
 
 const mutations = {
     pushMessageToRender: (state, payload) => {
-        state.renderingChat.push(payload.message)      
+        state.renderingChat.push(payload.message);
     },
 
     pushQuestion: (state, {question, complement=""}) => {
@@ -67,7 +67,6 @@ const mutations = {
     },
 
     clear: (state) => {
-        console.log('aqui 2')
         state.renderingChat.splice(0,(state.renderingChat.length));
     }
 }
@@ -134,7 +133,6 @@ const actions = {
                         commit('pushProfessionalsSelectQuestion', filial);
                     }
                     else{
-                        console.log(filial.professionals);
                         dispatch('setSelectedProfessional', filial.professionals[0])
                     }
                     break;
@@ -291,7 +289,9 @@ const actions = {
                 }
 
                 case 1: {
-                    commit('pushQuestion', {question:'yourName'});
+                    if(!(infos.hasOwnProperty('clientName')) || infos.clientName == "") {
+                        commit('pushQuestion', {question:'yourName'});
+                    }
                     break;
                 }
                 case 2: {
@@ -412,19 +412,40 @@ const actions = {
           .finally(()=>{
 
             if(response.status == 200) {
-                const message = {
-                    type:'sucessSchedule',
-                    data: {
-                        dataReserva:appointment.dataReserva,
-                        horarioAgendamento: appointment.horarioAgendamento,
-                        nomeCliente: appointment.nomeCliente,
-                        professionalNome: professional.nome,
-                        serviceTitulo: service.titulo,
-                        valor: Number(service.valor).toLocaleString('pt-BR',{style:'currency', currency:'BRL'}),
-                        enderecoCompleto: establishment.enderecoCompleto
+                let i = 0;
+                const queue = setInterval(()=>{
+                    switch(i){
+                        case 0: {
+                            const message = {
+                                type:'sucessSchedule',
+                                data: {
+                                    dataReserva:appointment.dataReserva,
+                                    horarioAgendamento: appointment.horarioAgendamento,
+                                    nomeCliente: appointment.nomeCliente,
+                                    professionalNome: professional.nome,
+                                    serviceTitulo: service.titulo,
+                                    valor: Number(service.valor).toLocaleString('pt-BR',{style:'currency', currency:'BRL'}),
+                                    enderecoCompleto: establishment.enderecoCompleto
+                                }
+                            }
+                            commit('pushMessageToRender',{message});
+                            break;
+                        }
+                        case 1: {
+                            const messageSucess = {
+                                type:"sucessButton",
+                                data: ""
+                            }
+                            commit('pushMessageToRender',{message:messageSucess});
+                            break;
+                        }
+                        default: {
+                            clearInterval(queue);
+                            break;
+                        }
                     }
-                }
-                commit('pushMessageToRender',{message});
+                    i++;
+                },200)
             } else if(response.status == 422) {
                 dispatch('returnToSelectOtherOption', {
                     options:['hour','professional','service'],
