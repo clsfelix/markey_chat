@@ -92,12 +92,12 @@ export default {
         padding: 8px 12px;
         border-radius: 10px;
         margin-left: 4px;
-
         color: #FAC80B;
         font-family: 'Inter';
         font-style: normal;
         font-weight: 400;
         font-size: 12px;
+        cursor: pointer;
     }
 
 .error {

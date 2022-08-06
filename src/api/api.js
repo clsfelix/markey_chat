@@ -4,6 +4,7 @@ import _createSchedule from "./createSchedule";
 
 
 const url = 'https://southamerica-east1-marcaai-a6efb.cloudfunctions.net/newchatbot/';
+// const url = 'http://localhost:5001/marcaai-a6efb/southamerica-east1/newchatbot/';
 
 const getEstablishmentService = (hash) => _getEstablishmentService(url, hash);
 

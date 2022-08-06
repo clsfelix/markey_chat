@@ -66,7 +66,6 @@ const actions = {
             const response = await getEstablishmentService('');
             commit('updateEstablishmentState', response);
             if(iniChat) {
-                console.log('here');
                 dispatch('initChat', {}, {root:true});
             }
         }

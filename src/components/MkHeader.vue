@@ -26,7 +26,6 @@ import { useStore } from 'vuex'
       },
       loadedPicture() {
         if(!this.blockReinitChatOnLoadImage){
-          console.log('here');
           this.blockReinitChatOnLoadImage = true;
           this.store.dispatch('infos/finallyLoadedEstablishment');
         }
