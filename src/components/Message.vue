@@ -106,6 +106,11 @@ export default {
     <p class="text">
       Endereço: {{data.enderecoCompleto}}
     </p>
+    <p class="finally-text" v-if="data.cancelamentoGratis" >
+      
+        Informamos que o não comparecimento no horário e dia agendado ou ausência de cancelamento sem antecedência poderá gerar uma taxa adicional no seu próximo serviço
+      
+    </p>
   </div>
 
 
@@ -198,6 +203,16 @@ export default {
   font-family: "Inter", sans-serif;
   font-style: normal;
   font-weight: 400;
+  font-size: 16px;
+  line-height: 19px;
+  color: #000;
+
+}
+.finally-text {
+  margin-top: 16px;
+  font-family: "Inter", sans-serif;
+  font-style: normal;
+  font-weight: 600;
   font-size: 16px;
   line-height: 19px;
   color: #000;

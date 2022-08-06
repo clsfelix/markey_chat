@@ -13,6 +13,7 @@
 
 <script>
 import { useStore } from "vuex";
+import { getAvaliabledSchedules } from '../api/api';
 export default {
   props: {
     hours: []
@@ -24,13 +25,20 @@ export default {
     };
   },
   methods: {
-    selectHour(e) {
+    async selectHour(e) {
       if (this.isSelected) {
         return;
       }
+      const { service, professional, date } = this.store.getters['chat/getSelectedOptions']
       const selectedHour = JSON.parse(e.target.value);
-      this.store.dispatch("chat/setSelectedHour", selectedHour);
-      this.isSelected = true;
+      const availableHours = await getAvaliabledSchedules(professional.uidProfessional, service.id, date.completeDate.toLocaleDateString('pt-br'));
+      if ((availableHours.findIndex((hour) => hour.slotReserva === selectedHour.slotReserva)) !== -1) { 
+        this.store.dispatch("chat/setSelectedHour", selectedHour);
+        this.isSelected = true;
+      }
+      else {
+        this.store.dispatch('chat/setSelectedDate', {date, hiddenMessage:true, reSelectHour:true});
+      }
     },
   },
   created(){

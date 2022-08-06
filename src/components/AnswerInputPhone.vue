@@ -14,11 +14,7 @@
         >
         <button :class="{'error':error}" class="sendButton" @click="submit()">Enviar</button>
     </div>
-</div>
-<div class="buttonContainer">
-    <button @click="dontSend()">Não informar</button>
-</div>
-  
+</div>  
 </template>
 
 <script>

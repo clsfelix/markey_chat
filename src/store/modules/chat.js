@@ -3,6 +3,7 @@ import { getAvaliabledSchedules, createSchedule } from '../../api/api'
 const state = ()=>{
     return {
         renderingChat:[],
+        buttonRestart: false
     }
 };
 
@@ -18,6 +19,9 @@ const getters = {
 
     getChat: (state, getters) => {
         return state.renderingChat;
+    },
+    getButton: (state, getters) => {
+        return state.buttonRestart;
     }
 }
 
@@ -68,6 +72,9 @@ const mutations = {
 
     clear: (state) => {
         state.renderingChat.splice(0,(state.renderingChat.length));
+    },
+    alterButton: (state, value) =>{
+        state.buttonRestart = value;
     }
 }
 
@@ -77,6 +84,7 @@ const actions = {
         root: true,
         handler: ({commit, state, getters, dispatch}) => {
 
+            commit('clear');
             const establishment = getters['getEstablishment'];
 
             let i = 0;
@@ -94,11 +102,13 @@ const actions = {
                     case 2: {
                         if(establishment.hasOwnProperty('filiais')) {
                             commit('pushEstablishmentSelectQuestion');
-                            clearInterval(queue);
                             break;
                         } else {
                             dispatch('setSelectedEstablishment', {filial:establishment,hiddenMessage:true});
                         }
+                    }
+                    case 3: {
+                        commit('alterButton', true);
                     }
 
                     default: {
@@ -118,6 +128,7 @@ const actions = {
         let i = 0
 
         dispatch('setSelectedOption', {key:'establishment', value:filial }, {root:true});
+        dispatch('setEstablishmentData', filial, {root:true});
 
 
         const queue = setInterval(()=>{
@@ -133,7 +144,7 @@ const actions = {
                         commit('pushProfessionalsSelectQuestion', filial);
                     }
                     else{
-                        dispatch('setSelectedProfessional', filial.professionals[0])
+                        dispatch('setSelectedProfessional', {professional:filial.professionals[0], hiddenMessage:true})
                     }
                     break;
                 }
@@ -162,10 +173,13 @@ const actions = {
                     break;
                 }
                 case 1: {
-                    let services = professional.servico.map(id => {
-                        return {
-                            ...establishment.servico[id],
-                            id
+                    let services = [];
+                    professional.servico.map(id => {
+                        if(!establishment.servico[id].desativado) {
+                            services.push({
+                                ...establishment.servico[id],
+                                id
+                            });
                         }
                     });
                     commit('pushServicesSelectQuestion', services );
@@ -221,7 +235,7 @@ const actions = {
 
     },
 
-    setSelectedDate : async ({commit, state, getters, dispatch}, {date, hiddenMessage=false}) => {
+    setSelectedDate : async ({commit, state, getters, dispatch}, {date, hiddenMessage=false, reSelectHour = false}) => {
         dispatch('setSelectedOption', {key:'date', value:date }, {root:true});
 
         const { professional, service, establishment } = getters['getSelectedOptions'];
@@ -242,7 +256,13 @@ const actions = {
                     }
 
                     case 1: {
-                        commit('pushQuestion',{question:"selectHour"});
+                        if(reSelectHour) {
+                            commit('pushQuestion',{question:"selectOtherHour"});
+                        }
+                        else {    
+                            commit('pushQuestion',{question:"selectHour"});
+                        }
+
                         break;
                     }
                     case 2: {
@@ -425,7 +445,8 @@ const actions = {
                                     professionalNome: professional.nome,
                                     serviceTitulo: service.titulo,
                                     valor: Number(service.valor).toLocaleString('pt-BR',{style:'currency', currency:'BRL'}),
-                                    enderecoCompleto: establishment.enderecoCompleto
+                                    enderecoCompleto: establishment.enderecoCompleto,
+                                    cancelamentoGratis: establishment.hasOwnProperty('cancelamentoGratis') ? establishment.cancelamentoGratis : false
                                 }
                             }
                             commit('pushMessageToRender',{message});
@@ -506,9 +527,11 @@ const actions = {
     },
 
     restart: ({commit, getters, dispatch}) => {
+        commit('alterButton', false);
         commit('clear');
         dispatch('clearOptions',{}, {root:true});
-    }
+    },
+
 }
 
 

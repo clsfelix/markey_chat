@@ -7,6 +7,10 @@ const state = () => {
             nomeEstabelecimento:'',
             userProfilePicture: ''
         },
+        establishmentData:{
+            nomeEstabelecimento:'',
+            userProfilePicture: ''
+        },
         optionsSelected: {}
     }
 }
@@ -15,6 +19,9 @@ const state = () => {
 const getters = {
     getEstablishment: (state, getters) =>{
         return state.establishment;
+    },
+    getEstablishmentData: (state, getters) =>{
+        return state.establishmentData;
     },
 
     getOptionsSelected: (state, getters) => {
@@ -29,6 +36,11 @@ const getters = {
 const mutations = {
     updateEstablishmentState: (state, establishment) => {
         state.establishment = establishment
+        state.establishmentData = establishment;
+    },
+
+    updateEstablishmentData: (state, establishment) => {
+        state.establishmentData = establishment;
     },
 
     setSelectedEstablishment: (state, establishment) => {
@@ -54,11 +66,20 @@ const actions = {
             const response = await getEstablishmentService('');
             commit('updateEstablishmentState', response);
             if(iniChat) {
+                console.log('here');
                 dispatch('initChat', {}, {root:true});
             }
         }
         catch(e) {
             console.error(e);
+        }
+    },
+
+    setEstablishmentData: {
+        root: true,
+
+        handler:({commit, state, dispatch}, establishment)=>{
+            commit('updateEstablishmentData', establishment);
         }
     },
 

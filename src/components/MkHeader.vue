@@ -3,20 +3,32 @@ import { useStore } from 'vuex'
   export default {
     data(){
       return{
-        store: useStore()
+        store: useStore(),
+        blockReinitChatOnLoadImage:false
       }
     },
     computed: {
         establishment(){
-          return this.store.getters['infos/getEstablishment'];        
-      }
+          return this.store.getters['infos/getEstablishmentData'];    
+        },
+        selectedEstablishment() {
+          const data = this.store.getters['chat/getSelectedOptions'];
+          return establishment.hasOwnProperty('establishment') ? data.establishment : null;
+        },
+        buttonRestart() {
+          return this.store.getters['chat/getButton'];
+        }
     },
     methods:{
       restartChat() {
+        this.blockReinitChatOnLoadImage = true;
         this.store.dispatch('chat/restart');
       },
       loadedPicture() {
-        this.store.dispatch('infos/finallyLoadedEstablishment');
+        if(!this.blockReinitChatOnLoadImage){
+          console.log('here');
+          this.store.dispatch('infos/finallyLoadedEstablishment');
+        }
       }
     }
     
@@ -26,7 +38,7 @@ import { useStore } from 'vuex'
 
 <template>
   <div class="content">
-    <div class="return" @click="restartChat()">
+    <div class="return" @click="restartChat()" v-show="buttonRestart">
       <img src="../assets/Vectorreturn.svg">
       <span>Reiniciar</span>
     </div>

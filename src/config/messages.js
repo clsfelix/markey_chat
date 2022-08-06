@@ -21,6 +21,10 @@ export const questions = (question, complement="") => {
             type: 'question',
             data: '🕛 Escolha um horário'
         },
+        selectOtherHour: {
+            type:'question',
+            data: '🕛 Ops! Parece que alguem foi mais rápido que você e agendou neste horário. Por favor, selecione outro horário'
+        },
         indisponibleHour: {
             type:'question',
             data:'🕛 Esse horário não está mais disponível'
