@@ -2,7 +2,7 @@
   <div class="container">
     <div class="hours">
       <select class="hourSelect" @change="selectHour" :disabled=isSelected>
-        <option selected style="display:none" >Horário</option>
+        <option selected style="display:none;" >Horário</option>
         <option v-for="hour in hours" :key="hour.slotReserva" :value="JSON.stringify(hour)">
           {{ hour.horarioAgendamento }}
         </option>
@@ -13,6 +13,7 @@
 
 <script>
 import { useStore } from "vuex";
+import { getAvaliabledSchedules } from '../api/api';
 export default {
   props: {
     hours: []
@@ -24,15 +25,24 @@ export default {
     };
   },
   methods: {
-    selectHour(e) {
+    async selectHour(e) {
       if (this.isSelected) {
         return;
       }
+      const { service, professional, date } = this.store.getters['chat/getSelectedOptions']
       const selectedHour = JSON.parse(e.target.value);
-      this.store.dispatch("chat/setSelectedHour", selectedHour);
-      this.isSelected = true;
+      const availableHours = await getAvaliabledSchedules(professional.uidProfessional, service.id, date.completeDate.toLocaleDateString('pt-br'));
+      if ((availableHours.findIndex((hour) => hour.slotReserva === selectedHour.slotReserva)) !== -1) { 
+        this.store.dispatch("chat/setSelectedHour", selectedHour);
+        this.isSelected = true;
+      }
+      else {
+        this.store.dispatch('chat/setSelectedDate', {date, hiddenMessage:true, reSelectHour:true});
+      }
     },
   },
+  created(){
+  }
 };
 </script>
 
@@ -49,7 +59,7 @@ export default {
 
 .hourSelect {
   outline: none;
-  width: 141px;
+  width: 142px;
   height: 48px;
   border: 1px solid #fac80b;
   border-radius: 5px;
@@ -61,7 +71,10 @@ export default {
   line-height: 12px;
   color: #FAC80B;
   text-align: center;
+  text-align: -webkit-center;
+  text-align: -moz-center;
   background: none;
+  padding: 0 25%;
 }
 
 .hourSelect > option{

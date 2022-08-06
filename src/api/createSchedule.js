@@ -2,7 +2,7 @@ const _createSchedule = (url, appointment) => {
     return new Promise((resolve, reject) => {
         const headers = new Headers();
         headers.append('Content-Type', 'application/json')
-        fetch(url + '/newSchedule',{
+        fetch(url + 'newSchedule',{
             body:JSON.stringify(appointment),
             method: 'POST',
             headers:headers

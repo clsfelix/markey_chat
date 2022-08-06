@@ -7,13 +7,21 @@ import SelectHour from './SelectHour.vue';
 import AnswerInput from './AnswerInput.vue';
 import AnswerInputPhone from './AnswerInputPhone.vue';
 import OhtersOptions from './OthersOptions.vue';
+import { useStore } from 'vuex';
 export default {
   props: {
     data:"",
     type: "",
   },
+  methods:{
+    restart() {
+        this.store.dispatch('chat/restart');
+    }
+  },
   data() {
-    return {};
+    return {
+      store:useStore()
+    };
   },
   components: {
     "Select-Establishment": SelectEstablishment,
@@ -66,7 +74,7 @@ export default {
     <answer-input-phone />
   </div>
 
-  <div class="awnser-input" v-else-if="type === 'selectOtherOption' ">
+  <div class="center-container" v-else-if="type === 'selectOtherOption' ">
     <others-options :options="data" />
   </div>
 
@@ -98,6 +106,16 @@ export default {
     <p class="text">
       Endereço: {{data.enderecoCompleto}}
     </p>
+    <p class="finally-text" v-if="data.cancelamentoGratis" >
+      
+        Informamos que o não comparecimento no horário e dia agendado ou ausência de cancelamento sem antecedência poderá gerar uma taxa adicional no seu próximo serviço
+      
+    </p>
+  </div>
+
+
+  <div class="center-container"  @click="restart()" v-else-if="type === 'sucessButton'">
+    <button class="finally-button">Realizar novo agendamento</button>
   </div>
 
 
@@ -136,6 +154,31 @@ export default {
   animation: slinde-in-left 0.5s;
 }
 
+.center-container {
+  border-radius: 10px;
+  padding: 12px 0px;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  -webkit-align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+}
+
+.finally-button {
+  width: 250px;
+  height: 40px;
+  background: #FFE01B;
+  border-radius: 10px;
+  outline: none;
+  border: none;
+  margin-right: 4px;
+  font-family: 'Inter' sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+}
+
 .awnser {
   margin: 0 0 0 auto;
   background: #DAD7D7;
@@ -160,6 +203,16 @@ export default {
   font-family: "Inter", sans-serif;
   font-style: normal;
   font-weight: 400;
+  font-size: 16px;
+  line-height: 19px;
+  color: #000;
+
+}
+.finally-text {
+  margin-top: 16px;
+  font-family: "Inter", sans-serif;
+  font-style: normal;
+  font-weight: 600;
   font-size: 16px;
   line-height: 19px;
   color: #000;

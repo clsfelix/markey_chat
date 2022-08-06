@@ -7,6 +7,10 @@ const state = () => {
             nomeEstabelecimento:'',
             userProfilePicture: ''
         },
+        establishmentData:{
+            nomeEstabelecimento:'',
+            userProfilePicture: ''
+        },
         optionsSelected: {}
     }
 }
@@ -15,6 +19,9 @@ const state = () => {
 const getters = {
     getEstablishment: (state, getters) =>{
         return state.establishment;
+    },
+    getEstablishmentData: (state, getters) =>{
+        return state.establishmentData;
     },
 
     getOptionsSelected: (state, getters) => {
@@ -29,6 +36,11 @@ const getters = {
 const mutations = {
     updateEstablishmentState: (state, establishment) => {
         state.establishment = establishment
+        state.establishmentData = establishment;
+    },
+
+    updateEstablishmentData: (state, establishment) => {
+        state.establishmentData = establishment;
     },
 
     setSelectedEstablishment: (state, establishment) => {
@@ -49,16 +61,24 @@ const mutations = {
 }
 
 const actions = {
-    getEstablishment : async ({ commit, state, dispatch },hash)=>{
+    getEstablishment : async ({ commit, state, dispatch }, iniChat=false)=>{
         try{
-            const response = await getEstablishmentService(hash);
+            const response = await getEstablishmentService('');
             commit('updateEstablishmentState', response);
-            
-
-
+            if(iniChat) {
+                dispatch('initChat', {}, {root:true});
+            }
         }
         catch(e) {
             console.error(e);
+        }
+    },
+
+    setEstablishmentData: {
+        root: true,
+
+        handler:({commit, state, dispatch}, establishment)=>{
+            commit('updateEstablishmentData', establishment);
         }
     },
 
@@ -73,9 +93,9 @@ const actions = {
     clearOptions: {
         root: true,
         handler:({commit, state, dispatch})=>{
-            console.log(3)
             commit('clearOptions');
-            dispatch('initChat', {}, {root:true});
+            dispatch('getEstablishment', true);
+            
         }
     },
 

@@ -51,12 +51,12 @@ export default {
 background: #FAC80B;
 border-radius: 18px;
 display: flex;
-margin-right: 12px;
+margin-right: 2vw;
 }
 
 .services > div {
   height: 65px; 
-  width: 110px;
+  width: 25vw;
   align-items: center;
   justify-content: center;
   display: flex;

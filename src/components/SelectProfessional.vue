@@ -42,7 +42,6 @@ export default {
     display: flex;
     flex-direction: row;
     overflow-x: auto;
-    max-height: 100px;
 }
 
 .professional {
@@ -62,8 +61,10 @@ export default {
 }
 
 .professional > img {
-  width: 73px;
-  height: 73px;
+  width: 16vw;
+  max-width: 80px;
+  height: 16vw;
+  max-height: 80px;
   border-radius: 50%;
 }
 

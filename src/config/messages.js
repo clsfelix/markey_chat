@@ -13,9 +13,21 @@ export const questions = (question, complement="") => {
             type:'question',
             data: '📅 Qual dia você deseja agendar?'
         },
+        dateIsInvalid: {
+            type:'question',
+            data:'Essa data é inválida, ou o profissional não atende neste dia da semana, por favor, escolha outra data'
+        },
         selectHour:{
             type: 'question',
             data: '🕛 Escolha um horário'
+        },
+        selectOtherHour: {
+            type:'question',
+            data: '🕛 Ops! Parece que alguem foi mais rápido que você e agendou neste horário. Por favor, selecione outro horário'
+        },
+        indisponibleHour: {
+            type:'question',
+            data:'🕛 Esse horário não está mais disponível'
         },
         dontHaveHour:{
             type: 'question',

@@ -2,7 +2,7 @@
   import Chat from './pages/Chat.vue'
 </script>
 <template>
-    <Chat />
+    <router-view></router-view>
 </template>
 <style scoped>
 </style>

@@ -3,6 +3,7 @@ import { getAvaliabledSchedules, createSchedule } from '../../api/api'
 const state = ()=>{
     return {
         renderingChat:[],
+        buttonRestart: false
     }
 };
 
@@ -18,12 +19,15 @@ const getters = {
 
     getChat: (state, getters) => {
         return state.renderingChat;
+    },
+    getButton: (state, getters) => {
+        return state.buttonRestart;
     }
 }
 
 const mutations = {
     pushMessageToRender: (state, payload) => {
-        state.renderingChat.push(payload.message)      
+        state.renderingChat.push(payload.message);
     },
 
     pushQuestion: (state, {question, complement=""}) => {
@@ -67,8 +71,10 @@ const mutations = {
     },
 
     clear: (state) => {
-        console.log('aqui 2')
         state.renderingChat.splice(0,(state.renderingChat.length));
+    },
+    alterButton: (state, value) =>{
+        state.buttonRestart = value;
     }
 }
 
@@ -78,6 +84,7 @@ const actions = {
         root: true,
         handler: ({commit, state, getters, dispatch}) => {
 
+            commit('clear');
             const establishment = getters['getEstablishment'];
 
             let i = 0;
@@ -95,11 +102,13 @@ const actions = {
                     case 2: {
                         if(establishment.hasOwnProperty('filiais')) {
                             commit('pushEstablishmentSelectQuestion');
-                            clearInterval(queue);
                             break;
                         } else {
                             dispatch('setSelectedEstablishment', {filial:establishment,hiddenMessage:true});
                         }
+                    }
+                    case 3: {
+                        commit('alterButton', true);
                     }
 
                     default: {
@@ -119,6 +128,7 @@ const actions = {
         let i = 0
 
         dispatch('setSelectedOption', {key:'establishment', value:filial }, {root:true});
+        dispatch('setEstablishmentData', filial, {root:true});
 
 
         const queue = setInterval(()=>{
@@ -130,7 +140,12 @@ const actions = {
                     break;
                 }
                 case 1: {
-                    commit('pushProfessionalsSelectQuestion', filial);
+                    if(filial.professionals.length > 1){
+                        commit('pushProfessionalsSelectQuestion', filial);
+                    }
+                    else{
+                        dispatch('setSelectedProfessional', {professional:filial.professionals[0], hiddenMessage:true})
+                    }
                     break;
                 }
 
@@ -158,10 +173,14 @@ const actions = {
                     break;
                 }
                 case 1: {
-                    let services = professional.servico.map(id => {
-                        return {
-                            ...establishment.servico[id],
-                            id
+                    let services = [];
+                    if(!establishment){return};
+                    professional.servico.map(id => {
+                        if(!establishment.servico[id].desativado) {
+                            services.push({
+                                ...establishment.servico[id],
+                                id
+                            });
                         }
                     });
                     commit('pushServicesSelectQuestion', services );
@@ -217,7 +236,7 @@ const actions = {
 
     },
 
-    setSelectedDate : async ({commit, state, getters, dispatch}, date) => {
+    setSelectedDate : async ({commit, state, getters, dispatch}, {date, hiddenMessage=false, reSelectHour = false}) => {
         dispatch('setSelectedOption', {key:'date', value:date }, {root:true});
 
         const { professional, service, establishment } = getters['getSelectedOptions'];
@@ -231,12 +250,20 @@ const actions = {
                 switch(i){
 
                     case 0 :{
+                        if(!hiddenMessage){
                         commit('pushAnswer',date.completeDate.toLocaleDateString('pt-br') )
+                        }
                         break;
                     }
 
                     case 1: {
-                        commit('pushQuestion',{question:"selectHour"});
+                        if(reSelectHour) {
+                            commit('pushQuestion',{question:"selectOtherHour"});
+                        }
+                        else {    
+                            commit('pushQuestion',{question:"selectHour"});
+                        }
+
                         break;
                     }
                     case 2: {
@@ -271,9 +298,9 @@ const actions = {
 
     },
 
-    setSelectedHour : ({commit, getter, dispatch}, hour) => {
+    setSelectedHour : ({commit, getters, dispatch}, hour) => {
         dispatch('setSelectedOption', {key:'hour', value:hour }, {root:true});
-
+        const infos = getters['getSelectedOptions'];
         let i = 0;
         const queue = setInterval(()=> {
             switch(i) {
@@ -283,15 +310,22 @@ const actions = {
                 }
 
                 case 1: {
-                    commit('pushQuestion', {question:'yourName'});
+                    if(!(infos.hasOwnProperty('clientName')) || infos.clientName == "") {
+                        commit('pushQuestion', {question:'yourName'});
+                    }
                     break;
                 }
                 case 2: {
-                    commit('pushInputAnswer', {
-                        mask:"",
-                        key: 'clientName',
-                        dispatch: 'pushPhoneQuestion'
-                    });
+                    if(infos.hasOwnProperty('clientName') && infos.clientName !== "") {
+                        dispatch('createAppointment');
+                    }
+                    else {
+                        commit('pushInputAnswer', {
+                            mask:"",
+                            key: 'clientName',
+                            dispatch: 'pushPhoneQuestion'
+                        });
+                    }
                     break;
                 }
 
@@ -389,25 +423,59 @@ const actions = {
             recorrencia:false
           };
 
-
+          let response={};
           createSchedule(appointment)
-          .then((response)=>{
-            console.log({'certo': response})
-            const message = {
-                type:'sucessSchedule',
-                data: {
-                    dataReserva:appointment.dataReserva,
-                    horarioAgendamento: appointment.horarioAgendamento,
-                    nomeCliente: appointment.nomeCliente,
-                    professionalNome: professional.nome,
-                    serviceTitulo: service.titulo,
-                    valor: Number(service.valor).toLocaleString('pt-BR',{style:'currency', currency:'BRL'}),
-                    enderecoCompleto: establishment.enderecoCompleto
-                }
-            }
-            commit('pushMessageToRender',{message});
+          .then((data)=>{
+            response = data;
+
           })
           .catch((err)=>console.error(err))
+          .finally(()=>{
+
+            if(response.status == 200) {
+                let i = 0;
+                const queue = setInterval(()=>{
+                    switch(i){
+                        case 0: {
+                            const message = {
+                                type:'sucessSchedule',
+                                data: {
+                                    dataReserva:appointment.dataReserva,
+                                    horarioAgendamento: appointment.horarioAgendamento,
+                                    nomeCliente: appointment.nomeCliente,
+                                    professionalNome: professional.nome,
+                                    serviceTitulo: service.titulo,
+                                    valor: Number(service.valor).toLocaleString('pt-BR',{style:'currency', currency:'BRL'}),
+                                    enderecoCompleto: establishment.enderecoCompleto,
+                                    cancelamentoGratis: establishment.hasOwnProperty('cancelamentoGratis') ? establishment.cancelamentoGratis : false
+                                }
+                            }
+                            commit('pushMessageToRender',{message});
+                            break;
+                        }
+                        case 1: {
+                            const messageSucess = {
+                                type:"sucessButton",
+                                data: ""
+                            }
+                            commit('pushMessageToRender',{message:messageSucess});
+                            break;
+                        }
+                        default: {
+                            clearInterval(queue);
+                            break;
+                        }
+                    }
+                    i++;
+                },200)
+            } else if(response.status == 422) {
+                dispatch('returnToSelectOtherOption', {
+                    options:['hour','professional','service'],
+                    question:"indisponibleHour"
+                })
+            }
+
+          })
     },
 
     returnToSelectOtherOption : ({commit, getters, dispatch}, {options, question}) => {
@@ -439,7 +507,7 @@ const actions = {
 
     setOtherOption: ({commit, getters,dispatch}, opt) => {
         
-        const { establishment, professional, service } = getters['getSelectedOptions'];
+        const { establishment, professional, service, date } = getters['getSelectedOptions'];
         switch(opt){
             case 'professional': {
                 dispatch('setSelectedEstablishment', {filial:establishment, hiddenMessage:true});
@@ -453,13 +521,18 @@ const actions = {
                 dispatch('setSelectedService',{service, hiddenMessage:true} );
                 break;
             }
+            case 'hour' : {
+                dispatch('setSelectedDate', {date, hiddenMessage:true})
+            }
         }
     },
 
     restart: ({commit, getters, dispatch}) => {
+        commit('alterButton', false);
         commit('clear');
         dispatch('clearOptions',{}, {root:true});
-    }
+    },
+
 }
 
 

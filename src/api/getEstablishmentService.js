@@ -1,7 +1,7 @@
 
 const _getEstablishmentService = async(url, hash) => {
     try {
-        let h = window.location.pathname.replace('/','');
+        let h = window.location.pathname.substring(1);
         const response = await fetch(url + 'getStore?hash=' + h);
         return response.json();
     }

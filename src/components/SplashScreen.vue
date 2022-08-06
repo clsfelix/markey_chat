@@ -1,6 +1,6 @@
 <template>
   <div class="container" :class="{'animated':loadedEstablishment}">
-    <img src="../assets/logo-redonda.svg" />
+    <img src="../assets/logo.png" />
   </div>
 </template>
 
@@ -28,13 +28,15 @@ export default {
   position: absolute;
   z-index: 10;
   display: flex;
-  background: linear-gradient(180deg, #ffe01b 0%, #fff 100%);
+  background: linear-gradient(180deg, #ffe01b 0%, #fff 30%);
   justify-content: center;
   align-items: center;
 
 }
 .container img {
   margin-bottom: 100px;
+  width: 150px;
+
 }
 
 .animated {
