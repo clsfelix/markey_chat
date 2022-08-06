@@ -174,6 +174,7 @@ const actions = {
                 }
                 case 1: {
                     let services = [];
+                    if(!establishment){return};
                     professional.servico.map(id => {
                         if(!establishment.servico[id].desativado) {
                             services.push({
