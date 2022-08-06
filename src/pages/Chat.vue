@@ -68,7 +68,7 @@
     display: flex;
     flex-direction: column-reverse;
     -webkit-flex-direction: column-reverse;
-    max-height: calc(100vh - 210px);
+    max-height: calc(90vh - 210px);
     overflow-y: auto;
     overflow-x: hidden;
     flex: 1 0 auto;

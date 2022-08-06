@@ -74,7 +74,7 @@ export default {
     <answer-input-phone />
   </div>
 
-  <div class="awnser-input" v-else-if="type === 'selectOtherOption' ">
+  <div class="center-container" v-else-if="type === 'selectOtherOption' ">
     <others-options :options="data" />
   </div>
 
@@ -109,8 +109,8 @@ export default {
   </div>
 
 
-  <div class="finally-button"  @click="restart()" v-else-if="type === 'sucessButton'">
-    <button>Realizar novo agendamento</button>
+  <div class="center-container"  @click="restart()" v-else-if="type === 'sucessButton'">
+    <button class="finally-button">Realizar novo agendamento</button>
   </div>
 
 
@@ -149,20 +149,18 @@ export default {
   animation: slinde-in-left 0.5s;
 }
 
-.finally-button {
+.center-container {
   border-radius: 10px;
   padding: 12px 0px;
-  width: fit-content;
-  width: 100vw;
-  animation: slinde-in-left 0.5s;
   display: flex;
+  width: 100%;
   align-items: center;
   -webkit-align-items: center;
   -webkit-justify-content: center;
   justify-content: center;
 }
 
-.finally-button button {
+.finally-button {
   width: 250px;
   height: 40px;
   background: #FFE01B;

@@ -62,7 +62,9 @@ export default {
 
 .professional > img {
   width: 16vw;
+  max-width: 80px;
   height: 16vw;
+  max-height: 80px;
   border-radius: 50%;
 }
 

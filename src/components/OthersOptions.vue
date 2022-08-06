@@ -45,24 +45,26 @@ export default {
     padding: 0;
     margin: 8px 0px;
     display: flex;
-    flex-direction: row;
+    display: flex;
+    justify-content: space-around;
+    -webkit-justify-content: space-around;
     overflow-x: auto;
     max-height: 120px;
     padding:0 0 12px 0;
 }
 .mkbutton {
-  width: 78px;
-  height: 28px;
+  width: 25vw;
+  max-width: 120px;
+  height: 40px;
   background: #FFE01B;
   border-radius: 10px;
   outline: none;
   border: none;
   margin-right: 4px;
-
   font-family: 'Inter' sans-serif;
   font-style: normal;
   font-weight: 400;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 12px;
 }
 
